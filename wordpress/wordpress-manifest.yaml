@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wp-configmap
+  namespace: wp
+  labels:
+    id: C0929653
+    app: wp-app
+    env: dev
+data:
+  WORDPRESS_DB_HOST: db-service.db.svc.cluster.local
+  WORDPRESS_DB_USER: "wordpress"
+  WORDPRESS_DB_NAME: "wordpress"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wp-secret
+  namespace: wp
+  labels:
+    id: C0929653
+    app: wp-app
+    env: dev
+type: Opaque
+data:
+  WORDPRESS_DB_PASSWORD: "d29yZHByZXNz"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wp-deployment
+  namespace: wp
+  labels:
+    id: C0929653
+    app: wp-app
+    env: dev
+spec:
+  selector:
+    matchLabels:
+      id: C0929653
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        id: C0929653
+        app: wp-app
+        env: dev
+    spec:
+      containers:
+      - name: wp-container
+        image: wordpress:latest
+        ports:
+        - containerPort: 80
+        envFrom:
+          - configMapRef:
+              name: wp-configmap
+          - secretRef:
+              name: wp-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp-service
+  namespace: wp
+  labels:
+    id: C0929653
+    app: wp-app
+    env: dev
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    id: C0929653
